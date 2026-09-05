@@ -1,0 +1,5 @@
+{
+  "name": "LangChain (Python monorepo)",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh"
+}
