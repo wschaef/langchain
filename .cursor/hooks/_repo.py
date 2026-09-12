@@ -60,7 +60,7 @@ def git(*args: str, cwd: Path | None = None) -> str:
     return result.stdout
 
 
-def changed_files(*, base: str | None = None) -> list[str]:
+def changed_files(*, base: str | None = None, include_untracked: bool = True) -> list[str]:
     """List changed files vs base (default merge-base with origin/master, else HEAD)."""
     if base is None:
         base = os.environ.get("CONTRIBUTE_DIFF_BASE")
@@ -70,9 +70,11 @@ def changed_files(*, base: str | None = None) -> list[str]:
     tracked = git("diff", "--name-only", "--diff-filter=ACMR", f"{base}...HEAD")
     unstaged = git("diff", "--name-only", "--diff-filter=ACMR")
     staged = git("diff", "--name-only", "--cached", "--diff-filter=ACMR")
-    untracked = git("ls-files", "--others", "--exclude-standard")
     files: set[str] = set()
-    for blob in (tracked, unstaged, staged, untracked):
+    blobs = [tracked, unstaged, staged]
+    if include_untracked:
+        blobs.append(git("ls-files", "--others", "--exclude-standard"))
+    for blob in blobs:
         for line in blob.splitlines():
             path = line.strip()
             if path:

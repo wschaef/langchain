@@ -195,6 +195,11 @@ def main() -> int:
         if data.get("permission") != "allow":
             failures.append(f"cursor-pack should allow contribute state: {data}")
 
+        # CLI mode ignores untracked pack copies (local tooling checkout)
+        code, out = run("check_no_cursor_pack_edits.py", args=["--cli"])
+        if code != 0:
+            failures.append(f"cursor-pack cli should allow untracked pack copy: {out}")
+
         # --- multi-package fail (untracked scratch files) ---
         core_src = REPO / "libs/core/langchain_core/_selftest_pack_scratch.py"
         ts_src = (

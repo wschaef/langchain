@@ -65,7 +65,11 @@ def main() -> int:
     args = parser.parse_args(argv)
     payload = {} if cli else read_stdin_json()
     target = declared_package()
-    paths = changed_files(base=args.base) if cli else paths_from_payload(payload)
+    paths = (
+        changed_files(base=args.base, include_untracked=False)
+        if cli
+        else paths_from_payload(payload)
+    )
     ok, message = evaluate_paths(paths, target=target)
 
     if cli:
