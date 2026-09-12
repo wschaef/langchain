@@ -7,7 +7,7 @@ Human-initiated `/contribute <issue-ref>` path for one-package LangChain contrib
 | `commands/contribute.md` | Entry |
 | `skills/contribute/` | Orchestrator + `run_package_gates.py` |
 | `agents/` | planner → test-author → implementer → verifier → pr-brief |
-| `hooks/` + `hooks.json` | Session gates (shell, package bound, deps; stop follow-ups for shape/tests) |
+| `hooks/` + `hooks.json` | Session gates (shell, package bound, deps, no pack edits on product runs; stop follow-ups for shape/tests) |
 | `rules/contribute-shape.mdc` | Thin always-on nudge for `libs/**` |
 
 Local format/lint/test: verifier via `check_local_gates.py` / `run_package_gates.py` — not every edit hook.

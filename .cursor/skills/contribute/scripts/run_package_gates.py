@@ -48,6 +48,7 @@ def main() -> int:
         ("check_one_package.py", ["--cli", *base_args]),
         ("check_package_bound.py", ["--cli", *base_args]),
         ("check_no_driveby_deps.py", ["--cli", *base_args]),
+        ("check_no_cursor_pack_edits.py", ["--cli", *base_args]),
         ("check_tests_present.py", ["--cli", *base_args]),
         ("check_unit_no_network.py", ["--cli", *base_args]),
     ]

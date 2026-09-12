@@ -165,6 +165,36 @@ def main() -> int:
         if data.get("permission") != "allow":
             failures.append(f"bound hook should allow same package: {data}")
 
+        # Deny editing pack organs during a libs contribute
+        payload = json.dumps(
+            {
+                "hook_event_name": "preToolUse",
+                "tool_name": "Write",
+                "tool_input": {"path": str(REPO / ".cursor/hooks/selftest_hooks.py")},
+            }
+        )
+        code, out = run("check_no_cursor_pack_edits.py", stdin=payload)
+        try:
+            data = json.loads(out)
+        except json.JSONDecodeError:
+            failures.append(f"cursor-pack hook JSON invalid: {out}")
+        else:
+            if data.get("permission") != "deny":
+                failures.append(f"cursor-pack should deny pack Write: {data}")
+
+        # Allow session state under .cursor/contribute/
+        payload = json.dumps(
+            {
+                "hook_event_name": "preToolUse",
+                "tool_name": "Write",
+                "tool_input": {"path": str(REPO / ".cursor/contribute/plan.md")},
+            }
+        )
+        code, out = run("check_no_cursor_pack_edits.py", stdin=payload)
+        data = json.loads(out)
+        if data.get("permission") != "allow":
+            failures.append(f"cursor-pack should allow contribute state: {data}")
+
         # --- multi-package fail (untracked scratch files) ---
         core_src = REPO / "libs/core/langchain_core/_selftest_pack_scratch.py"
         ts_src = (

@@ -65,6 +65,7 @@ Run in order (no further interviews):
 - One package only
 - No drive-by `pyproject.toml` / `uv.lock`
 - Stay inside declared package
+- Do not commit `.cursor/` pack organs on the product PR (session files under `.cursor/contribute/` only)
 - Unit tests with source; no live network in unit tests
 - Block `pip` / `poetry` / `conda` and force-push
 - Format / lint / test: verifier (not every session edit hook)

@@ -39,7 +39,8 @@ Fixes #<n>
 
 4. Title: Conventional Commits with scope (`fix(core): …`, etc.).
 5. Create or update a **draft** PR unless the human asked otherwise.
-6. Note AI-agent involvement briefly.
+6. Stage **only** product/test files under the declared package. Never add `.cursor/` pack organs to the product commit.
+7. Note AI-agent involvement briefly.
 
 ## Must not
 
