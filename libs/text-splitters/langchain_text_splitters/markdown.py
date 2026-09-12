@@ -11,6 +11,18 @@ from langchain_text_splitters.base import Language
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 
 
+def _strip_closing_atx_sequence(header_text: str) -> str:
+    """Remove a CommonMark optional closing `#` sequence from ATX header text.
+
+    A closing sequence is a run of `#` characters that is either the entire
+    heading text, or preceded by whitespace. Trailing `#` attached to words
+    (for example `C#` or `Title#`) are kept.
+    """
+    if re.fullmatch(r"\s*#+\s*", header_text):
+        return ""
+    return re.sub(r"\s+#+\s*$", "", header_text).rstrip()
+
+
 class MarkdownTextSplitter(RecursiveCharacterTextSplitter):
     """Attempts to split the text along Markdown-formatted headings."""
 
@@ -222,7 +234,9 @@ class MarkdownHeaderTextSplitter:
                         else:
                             # For standard headers like # Header, extract text
                             # after the separator
-                            header_text = stripped_line[len(sep) :].strip()
+                            header_text = _strip_closing_atx_sequence(
+                                stripped_line[len(sep) :].strip()
+                            )
 
                         header: HeaderType = {
                             "level": current_header_level,

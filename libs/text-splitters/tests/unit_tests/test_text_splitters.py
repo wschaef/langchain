@@ -1462,6 +1462,30 @@ def test_md_header_text_splitter_1() -> None:
     assert output == expected_output
 
 
+@pytest.mark.parametrize(
+    ("markdown", "expected_metadata"),
+    [
+        ("# Title ##\nIntro.", {"Header 1": "Title"}),
+        ("# Title   ###   \nIntro.", {"Header 1": "Title"}),
+        ("# C#\nIntro.", {"Header 1": "C#"}),
+        ("# Title#\nIntro.", {"Header 1": "Title#"}),
+        ("# ##\nIntro.", {"Header 1": ""}),
+        ("## Section ###\nBody.", {"Header 2": "Section"}),
+    ],
+)
+def test_md_header_strip_closing_atx_sequence(
+    markdown: str, expected_metadata: dict
+) -> None:
+    """Closing `#` runs are not part of ATX heading text (#40298)."""
+    splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=[("#", "Header 1"), ("##", "Header 2")],
+    )
+    docs = splitter.split_text(markdown)
+    assert docs
+    for key, value in expected_metadata.items():
+        assert docs[0].metadata.get(key) == value
+
+
 def test_md_header_text_splitter_2() -> None:
     """Test markdown splitter by header: Case 2."""
     markdown_document = (
