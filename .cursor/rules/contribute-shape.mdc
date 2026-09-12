@@ -1,0 +1,19 @@
+---
+description: Prefer the contribute workflow for LangChain contributions; keep one-package shape and tests with source.
+globs:
+  - "libs/**"
+alwaysApply: false
+---
+
+# Contribute shape
+
+For product contributions under `libs/`, use the `/contribute` command (skill `contribute`) when fixing a bug or adding a feature tied to an issue.
+
+- Stay in **one** package (`libs/<pkg>` or `libs/partners/<pkg>`).
+- Do not edit `pyproject.toml` / `uv.lock` unless the issue explicitly allows it.
+- Do not commit project `.cursor/` pack organs on a product PR (session state under `.cursor/contribute/` is local only).
+- Ship unit tests with source changes (`tests/unit_tests/`, no live network).
+- Prefer `uv` over `pip` / `poetry` / `conda`.
+- Hooks and `.cursor/hooks/*.py` scripts are authoritative for shape checks; do not argue past a deny.
+- Do **not** copy `AGENTS.md` into rules — follow repository `AGENTS.md` / `CLAUDE.md` when loaded.
+- Format / lint / full package tests belong to the `verifier` agent (or CI), not every edit hook.

@@ -90,7 +90,7 @@ def _find_all_tags(
 def _html_header_level(tag: str) -> int:
     """Map an HTML tag to a nesting level for header hierarchy.
 
-    Numbered heading tags (`h1`–`h6`) use their numeric suffix. Other tags that
+    Numbered heading tags (`h1`-`h6`) use their numeric suffix. Other tags that
     the splitter tracks fall back to a deep level so they nest under active
     numbered headers instead of replacing them.
     """
