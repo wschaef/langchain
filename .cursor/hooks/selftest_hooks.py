@@ -8,6 +8,7 @@ missing tests, and unit-test network heuristic — not happy path only.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -36,6 +37,9 @@ def _write(path: Path, content: str) -> None:
 
 def main() -> int:
     failures: list[str] = []
+    # Isolate from contribute session env left by prior runs.
+    os.environ.pop("CONTRIBUTE_PACKAGE", None)
+    os.environ.pop("CONTRIBUTE_DIFF_BASE", None)
 
     # --- disallowed shell ---
     code, out = run("block_disallowed_shell.py", args=["--cli", "uv sync --all-groups"])
