@@ -196,6 +196,23 @@ def test_parse_json(json_string: str) -> None:
     assert parsed == {"foo": "bar"}
 
 
+@pytest.mark.parametrize(
+    "fence_tag",
+    [
+        "json",
+        "JSON",
+        "Json",
+        "",
+    ],
+)
+def test_parse_json_markdown_fence_tag_case_insensitive(fence_tag: str) -> None:
+    """Fence language tags should match case-insensitively (#40297)."""
+    tag = fence_tag
+    fenced = f'```{tag}\n{{"foo": "bar"}}\n```'
+    parsed = parse_json_markdown(fenced)
+    assert parsed == {"foo": "bar"}
+
+
 def test_parse_json_with_code_blocks() -> None:
     parsed = parse_json_markdown(JSON_WITH_MARKDOWN_CODE_BLOCK)
     assert parsed == {"foo": "```bar```"}
