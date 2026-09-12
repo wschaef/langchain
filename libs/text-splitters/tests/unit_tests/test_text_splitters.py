@@ -1474,7 +1474,7 @@ def test_md_header_text_splitter_1() -> None:
     ],
 )
 def test_md_header_strip_closing_atx_sequence(
-    markdown: str, expected_metadata: dict
+    markdown: str, expected_metadata: dict[str, str]
 ) -> None:
     """Closing `#` runs are not part of ATX heading text (#40298)."""
     splitter = MarkdownHeaderTextSplitter(
