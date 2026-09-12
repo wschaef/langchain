@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeShellExecution": [
+      {
+        "command": "python3 .cursor/hooks/block_disallowed_shell.py",
+        "timeout": 15
+      }
+    ],
+    "preToolUse": [
+      {
+        "command": "python3 .cursor/hooks/check_package_bound.py",
+        "timeout": 15,
+        "matcher": "Write|Delete|EditNotebook|StrReplace"
+      },
+      {
+        "command": "python3 .cursor/hooks/check_no_driveby_deps.py",
+        "timeout": 15,
+        "matcher": "Write|Delete|StrReplace"
+      }
+    ],
+    "stop": [
+      {
+        "command": "python3 .cursor/hooks/check_one_package.py",
+        "timeout": 20,
+        "loop_limit": 3
+      },
+      {
+        "command": "python3 .cursor/hooks/check_tests_present.py",
+        "timeout": 20,
+        "loop_limit": 3
+      },
+      {
+        "command": "python3 .cursor/hooks/check_unit_no_network.py",
+        "timeout": 20,
+        "loop_limit": 3
+      }
+    ]
+  }
+}
