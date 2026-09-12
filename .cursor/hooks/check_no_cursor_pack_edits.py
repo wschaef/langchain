@@ -55,7 +55,7 @@ def paths_from_payload(payload: dict) -> list[str]:
         if not file_path and isinstance(tool_input, dict):
             file_path = tool_input.get("path") or tool_input.get("file_path") or ""
         return [repo_relative(str(file_path))] if file_path else []
-    return changed_files()
+    return changed_files(include_untracked=False)
 
 
 def main() -> int:
