@@ -140,7 +140,9 @@ class RecursiveCharacterTextSplitter(TextSplitter):
                     final_chunks.extend(merged_text)
                     good_splits = []
                 if not new_separators:
-                    final_chunks.append(s)
+                    piece = s.strip() if self._strip_whitespace else s
+                    if piece:
+                        final_chunks.append(piece)
                 else:
                     other_info = self._split_text(s, new_separators)
                     final_chunks.extend(other_info)

@@ -392,6 +392,28 @@ def test_recursive_character_text_splitter_keep_separators() -> None:
     assert result == ["Apple,", "banana,", "orange and tomato."]
 
 
+def test_recursive_splitter_strip_whitespace_unsplittable() -> None:
+    """Unsplittable pieces should honor strip_whitespace (#40299)."""
+    splitter = RecursiveCharacterTextSplitter(
+        separators=["\n", " "],
+        chunk_size=5,
+        chunk_overlap=0,
+    )
+    assert splitter.split_text("hi supercalifragilistic\nok") == [
+        "hi",
+        "supercalifragilistic",
+        "ok",
+    ]
+
+    splitter_keep = RecursiveCharacterTextSplitter(
+        separators=[" "],
+        chunk_size=3,
+        chunk_overlap=0,
+        strip_whitespace=False,
+    )
+    assert splitter_keep.split_text("ab ab ab") == ["ab", " ab", " ab"]
+
+
 def test_character_text_splitting_args() -> None:
     """Test invalid arguments."""
     with pytest.raises(
