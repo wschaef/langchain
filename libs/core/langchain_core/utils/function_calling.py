@@ -487,9 +487,11 @@ def convert_to_openai_function(
             raise ValueError(msg)
         oai_function["strict"] = strict
         if strict:
-            oai_function["parameters"] = _recursive_set_additional_properties_false(
-                oai_function["parameters"]
-            )
+            parameters = oai_function.get("parameters")
+            if parameters is not None:
+                oai_function["parameters"] = _recursive_set_additional_properties_false(
+                    parameters
+                )
     return oai_function
 
 
@@ -557,6 +559,15 @@ def convert_to_openai_tool(
 
     if isinstance(tool, dict):
         if tool.get("type") in _WellKnownOpenAITools:
+            if (
+                tool.get("type") == "function"
+                and isinstance(tool.get("function"), dict)
+                and strict is not None
+            ):
+                oai_function = convert_to_openai_function(
+                    tool["function"], strict=strict
+                )
+                return {**tool, "function": oai_function}
             return tool
         # As of 03.12.25 can be "web_search_preview" or "web_search_preview_2025_03_11"
         if (tool.get("type") or "").startswith("web_search_preview"):

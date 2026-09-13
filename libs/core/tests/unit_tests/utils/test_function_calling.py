@@ -1466,6 +1466,35 @@ def test_convert_to_openai_tool_apply_patch_passthrough() -> None:
     assert result == tool
 
 
+def test_convert_to_openai_tool_applies_strict_to_prewrapped_function() -> None:
+    """Pre-wrapped `{type: function}` dicts must honor `strict` (#40332)."""
+    function_def = {
+        "name": "lookup",
+        "description": "Lookup data",
+        "parameters": {
+            "type": "object",
+            "properties": {"query": {"type": "string"}},
+        },
+    }
+    wrapped = convert_to_openai_tool(
+        {"type": "function", "function": function_def},
+        strict=True,
+    )
+    bare = convert_to_openai_tool(function_def, strict=True)
+    assert wrapped["function"].get("strict") is True
+    assert bare["function"].get("strict") is True
+    assert wrapped["function"]["parameters"].get("additionalProperties") is False
+    assert bare["function"]["parameters"].get("additionalProperties") is False
+
+
+def test_convert_to_openai_function_strict_without_parameters() -> None:
+    """Strict mode must not KeyError when parameters are omitted (#40332)."""
+    result = convert_to_openai_function({"name": "now"}, strict=True)
+    assert result["name"] == "now"
+    assert result.get("strict") is True
+    assert "parameters" not in result or result["parameters"] is not None
+
+
 def test_convert_to_openai_tool_computer_passthrough() -> None:
     """Test that the 'computer' tool type is passed through unchanged."""
     computer_tool = {
