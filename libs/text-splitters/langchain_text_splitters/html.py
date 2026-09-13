@@ -87,6 +87,19 @@ def _find_all_tags(
     return tag.find_all(name, recursive=recursive)
 
 
+def _html_header_level(tag: str) -> int:
+    """Map an HTML tag to a nesting level for header hierarchy.
+
+    Numbered heading tags (`h1`-`h6`) use their numeric suffix. Other tags that
+    the splitter tracks fall back to a deep level so they nest under active
+    numbered headers instead of replacing them.
+    """
+    try:
+        return int(tag[1:])
+    except ValueError:
+        return 9999
+
+
 class HTMLHeaderTextSplitter:
     """Split HTML content into structured Documents based on specified headers.
 
@@ -172,8 +185,9 @@ class HTMLHeaderTextSplitter:
                 fewer `Document` objects.
         """
         # Sort headers by their numeric level so that h1 < h2 < h3...
+        # Non-heading tags (e.g. div) sort after numbered headings.
         self.headers_to_split_on = sorted(
-            headers_to_split_on, key=lambda x: int(x[0][1:])
+            headers_to_split_on, key=lambda x: _html_header_level(x[0])
         )
         self.header_mapping = dict(self.headers_to_split_on)
         self.header_tags = [tag for tag, _ in self.headers_to_split_on]
@@ -325,10 +339,7 @@ class HTMLHeaderTextSplitter:
                         yield doc
 
                 # Determine numeric level (h1->1, h2->2, etc.)
-                try:
-                    level = int(tag[1:])
-                except ValueError:
-                    level = 9999
+                level = _html_header_level(tag)
 
                 # Remove any active headers that are at or deeper than this new level
                 headers_to_remove = [

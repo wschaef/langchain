@@ -2637,6 +2637,18 @@ def html_header_splitter_splitter_factory() -> Callable[
     return _create_splitter
 
 
+def test_html_header_splitter_accepts_non_heading_tags() -> None:
+    """Non-heading tags must construct and nest under numbered headers (#40341)."""
+    splitter = HTMLHeaderTextSplitter(
+        headers_to_split_on=[("h1", "Header 1"), ("div", "Div")],
+    )
+    assert [tag for tag, _ in splitter.headers_to_split_on] == ["h1", "div"]
+    docs = splitter.split_text("<h1>Main</h1><div>Body text</div>")
+    assert docs
+    assert docs[0].metadata.get("Header 1") == "Main"
+    assert any(doc.metadata.get("Div") == "Body text" for doc in docs)
+
+
 @pytest.mark.parametrize(
     ("headers_to_split_on", "html_input", "expected_documents", "test_case"),
     [
