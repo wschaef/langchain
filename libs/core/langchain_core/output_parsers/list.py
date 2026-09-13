@@ -180,6 +180,83 @@ class CommaSeparatedListOutputParser(ListOutputParser):
             # Keep old logic for backup
             return [part.strip() for part in text.split(",")]
 
+    @staticmethod
+    def _last_unquoted_comma_index(buffer: str) -> int:
+        """Return index of the last comma outside quotes, or `-1`."""
+        last_delim_idx = -1
+        in_quotes = False
+        i = 0
+        n = len(buffer)
+        while i < n:
+            char = buffer[i]
+            if char == '"':
+                if in_quotes:
+                    if i + 1 < n and buffer[i + 1] == '"':
+                        # Escaped quote ("") inside a quoted field.
+                        i += 1
+                    else:
+                        in_quotes = False
+                else:
+                    in_quotes = True
+            elif char == "," and not in_quotes:
+                last_delim_idx = i
+            i += 1
+        return last_delim_idx
+
+    def _flush_complete_csv_fields(self, buffer: str) -> tuple[list[str], str]:
+        """Split completed CSV fields from a raw buffer; keep an unfinished tail.
+
+        Returns:
+            A pair of (completed field values, remaining raw buffer).
+        """
+        last_delim_idx = self._last_unquoted_comma_index(buffer)
+        if last_delim_idx == -1:
+            return [], buffer
+        complete = buffer[:last_delim_idx]
+        remaining = buffer[last_delim_idx + 1 :]
+        return self.parse(complete), remaining
+
+    @staticmethod
+    def _chunk_text(chunk: str | BaseMessage) -> str | None:
+        if isinstance(chunk, BaseMessage):
+            chunk_content = chunk.content
+            if not isinstance(chunk_content, str):
+                return None
+            return chunk_content
+        return chunk
+
+    @override
+    def _transform(self, input: Iterator[str | BaseMessage]) -> Iterator[list[str]]:
+        buffer = ""
+        for chunk in input:
+            text = self._chunk_text(chunk)
+            if text is None:
+                continue
+            buffer += text
+            parts, buffer = self._flush_complete_csv_fields(buffer)
+            for part in parts:
+                yield [part]
+        if buffer:
+            for part in self.parse(buffer):
+                yield [part]
+
+    @override
+    async def _atransform(
+        self, input: AsyncIterator[str | BaseMessage]
+    ) -> AsyncIterator[list[str]]:
+        buffer = ""
+        async for chunk in input:
+            text = self._chunk_text(chunk)
+            if text is None:
+                continue
+            buffer += text
+            parts, buffer = self._flush_complete_csv_fields(buffer)
+            for part in parts:
+                yield [part]
+        if buffer:
+            for part in self.parse(buffer):
+                yield [part]
+
     @property
     def _type(self) -> str:
         return "comma-separated-list"

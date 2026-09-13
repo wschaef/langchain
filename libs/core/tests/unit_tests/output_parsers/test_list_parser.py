@@ -89,6 +89,24 @@ def test_multiple_items_with_comma() -> None:
     assert list(parser.transform(iter([text]))) == [[a] for a in expected]
 
 
+def test_streaming_quoted_fields_across_chunks() -> None:
+    """Quoted CSV fields that span stream chunks must stay one field."""
+    parser = CommaSeparatedListOutputParser()
+    chunks = ['alpha, "beta,', ' gamma", delta']
+    expected = ["alpha", "beta, gamma", "delta"]
+    assert parser.invoke("".join(chunks)) == expected
+    assert list(parser.transform(iter(chunks))) == [[a] for a in expected]
+
+
+def test_streaming_escaped_quotes_across_chunks() -> None:
+    """Doubled quotes inside a field must survive chunk boundaries."""
+    parser = CommaSeparatedListOutputParser()
+    chunks = ['"foo""bar, ', 'baz", qux']
+    expected = ['foo"bar, baz', "qux"]
+    assert parser.invoke("".join(chunks)) == expected
+    assert list(parser.transform(iter(chunks))) == [[a] for a in expected]
+
+
 def test_numbered_list() -> None:
     parser = NumberedListOutputParser()
     text1 = (
@@ -224,6 +242,16 @@ async def test_multiple_items_async() -> None:
         )
     ] == [[a] for a in expected]
     assert [a async for a in parser.atransform(aiter_from_iter([text]))] == [
+        [a] for a in expected
+    ]
+
+
+async def test_streaming_quoted_fields_across_chunks_async() -> None:
+    """Async streaming must preserve quoted fields across chunk boundaries."""
+    parser = CommaSeparatedListOutputParser()
+    chunks = ['alpha, "beta,', ' gamma", delta']
+    expected = ["alpha", "beta, gamma", "delta"]
+    assert [a async for a in parser.atransform(aiter_from_iter(chunks))] == [
         [a] for a in expected
     ]
 
