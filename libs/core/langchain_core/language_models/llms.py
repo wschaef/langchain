@@ -1005,7 +1005,7 @@ class BaseLLM(BaseLanguageModel[str], ABC):
             llm_string,
             missing_prompt_idxs,
             missing_prompts,
-        ) = get_prompts(params, prompts, self.cache)
+        ) = get_prompts({**params, **kwargs}, prompts, self.cache)
         new_arg_supported = inspect.signature(self._generate).parameters.get(
             "run_manager"
         )
@@ -1277,7 +1277,7 @@ class BaseLLM(BaseLanguageModel[str], ABC):
             llm_string,
             missing_prompt_idxs,
             missing_prompts,
-        ) = await aget_prompts(params, prompts, self.cache)
+        ) = await aget_prompts({**params, **kwargs}, prompts, self.cache)
 
         # Verify whether the cache is set, and if the cache is set,
         # verify whether the cache is available.
